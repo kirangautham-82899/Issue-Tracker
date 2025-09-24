@@ -1,0 +1,297 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  font-family: 'Inter', 'Roboto', "Helvetica Neue", sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  background-attachment: fixed;
+  color: #f8fafc;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Global animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInFromLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInFromRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.animate-slide-left {
+  animation: slideInFromLeft 0.5s ease-out;
+}
+
+.animate-slide-right {
+  animation: slideInFromRight 0.5s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s ease-out;
+}
+
+/* Loading skeleton */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Enhanced Glassmorphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+/* Global text color overrides */
+* {
+  color: inherit;
+}
+
+/* Material Design component text colors */
+.mat-mdc-table {
+  color: white !important;
+}
+
+.mat-mdc-header-cell {
+  color: white !important;
+}
+
+.mat-mdc-cell {
+  color: white !important;
+}
+
+.mat-mdc-paginator {
+  color: white !important;
+}
+
+.mat-mdc-form-field-label {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.mat-mdc-input-element {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 8px !important;
+}
+
+.mat-mdc-select-value {
+  color: white !important;
+}
+
+.mat-mdc-option {
+  color: #333 !important;
+  background: white !important;
+}
+
+.mat-mdc-button {
+  color: inherit !important;
+}
+
+/* Enhanced form field styling */
+.mat-mdc-text-field-wrapper {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border-radius: 12px !important;
+}
+
+.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-outline {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.mat-mdc-form-field-appearance-outline.mat-focused .mat-mdc-form-field-outline-thick {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.mat-mdc-table {
+  width: 100%;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  
+  &.open {
+    background-color: #e3f2fd;
+    color: #1976d2;
+  }
+  
+  &.in_progress {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+  
+  &.closed {
+    background-color: #e8f5e8;
+    color: #388e3c;
+  }
+}
+
+.priority-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  
+  &.low {
+    background-color: #f3e5f5;
+    color: #7b1fa2;
+  }
+  
+  &.medium {
+    background-color: #e8f5e8;
+    color: #388e3c;
+  }
+  
+  &.high {
+    background-color: #fff3e0;
+    color: #f57c00;
+  }
+  
+  &.critical {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+}
+
+.filters-container {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-container {
+  flex: 1;
+  min-width: 300px;
+}
+
+.filter-field {
+  min-width: 150px;
+}
+
+.actions-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.table-container {
+  mat-table {
+    width: 100%;
+  }
+}
+
+.clickable-row {
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.drawer-content {
+  padding: 20px;
+  width: 400px;
+}
+
+.issue-detail {
+  h2 {
+    margin-top: 0;
+  }
+  
+  .detail-field {
+    margin-bottom: 16px;
+    
+    .label {
+      font-weight: 500;
+      color: #666;
+      margin-bottom: 4px;
+    }
+    
+    .value {
+      font-size: 14px;
+    }
+  }
+}
+
+.form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}

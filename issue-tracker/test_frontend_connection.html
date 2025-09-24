@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frontend Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Issue Tracker API Connection Test</h1>
+    
+    <button onclick="testHealth()">Test Health Endpoint</button>
+    <button onclick="testIssues()">Test Issues Endpoint</button>
+    <button onclick="testCreateIssue()">Test Create Issue</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        
+        function addResult(message, isSuccess = true) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${isSuccess ? 'success' : 'error'}`;
+            resultDiv.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            resultsDiv.appendChild(resultDiv);
+        }
+        
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                addResult(`Health check successful: ${JSON.stringify(data)}`, true);
+            } catch (error) {
+                addResult(`Health check failed: ${error.message}`, false);
+            }
+        }
+        
+        async function testIssues() {
+            try {
+                const response = await fetch(`${API_BASE}/issues`);
+                const data = await response.json();
+                addResult(`Issues fetch successful: Found ${data.total} issues, showing ${data.issues.length}`, true);
+            } catch (error) {
+                addResult(`Issues fetch failed: ${error.message}`, false);
+            }
+        }
+        
+        async function testCreateIssue() {
+            try {
+                const newIssue = {
+                    title: "Test Issue from Frontend",
+                    description: "This is a test issue created from the frontend test page",
+                    status: "open",
+                    priority: "medium",
+                    assignee: "test@frontend.com"
+                };
+                
+                const response = await fetch(`${API_BASE}/issues`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newIssue)
+                });
+                
+                const data = await response.json();
+                addResult(`Issue creation successful: Created issue #${data.id}`, true);
+            } catch (error) {
+                addResult(`Issue creation failed: ${error.message}`, false);
+            }
+        }
+        
+        // Auto-run tests on page load
+        window.onload = function() {
+            addResult('Starting API connection tests...', true);
+            setTimeout(testHealth, 500);
+            setTimeout(testIssues, 1000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Notifications Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .connection-status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+        .connected {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.5);
+            color: #22c55e;
+        }
+        .disconnected {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #ef4444;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        input {
+            padding: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .notifications {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .notification {
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+        .notification.mention {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .notification.issue_assigned {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        .notification.comment_added {
+            border-left-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .notification-message {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        .notification-time {
+            font-size: 0.8em;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Live Notifications Test</h1>
+        
+        <div id="connectionStatus" class="connection-status disconnected">
+            Disconnected
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalNotifications">0</div>
+                <div class="stat-label">Total Notifications</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="connectedUsers">0</div>
+                <div class="stat-label">Connected Users</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <input type="number" id="userIdInput" placeholder="User ID (1-5)" value="1" min="1" max="5">
+            <button onclick="connect()">Connect</button>
+            <button onclick="disconnect()">Disconnect</button>
+            <button onclick="clearNotifications()">Clear All</button>
+        </div>
+
+        <div class="notifications" id="notifications">
+            <div style="text-align: center; opacity: 0.6;">
+                No notifications yet. Connect to start receiving live updates!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let userId = 1;
+        let notificationCount = 0;
+
+        function updateConnectionStatus(connected) {
+            const status = document.getElementById('connectionStatus');
+            if (connected) {
+                status.className = 'connection-status connected';
+                status.textContent = `Connected as User ${userId}`;
+            } else {
+                status.className = 'connection-status disconnected';
+                status.textContent = 'Disconnected';
+            }
+        }
+
+        function connect() {
+            userId = parseInt(document.getElementById('userIdInput').value) || 1;
+            
+            if (ws) {
+                ws.close();
+            }
+
+            // Connect to WebSocket
+            ws = new WebSocket(`ws://localhost:8000/ws/${userId}`);
+            
+            ws.onopen = function(event) {
+                console.log('Connected to WebSocket');
+                updateConnectionStatus(true);
+                addSystemNotification('Connected to live notifications!', 'success');
+            };
+
+            ws.onmessage = function(event) {
+                console.log('Received:', event.data);
+                
+                try {
+                    const data = JSON.parse(event.data);
+                    addNotification(data);
+                } catch (e) {
+                    // Handle plain text messages
+                    if (event.data.includes('Connected as user')) {
+                        console.log('Heartbeat:', event.data);
+                    }
+                }
+            };
+
+            ws.onclose = function(event) {
+                console.log('WebSocket closed');
+                updateConnectionStatus(false);
+                addSystemNotification('Disconnected from live notifications', 'error');
+            };
+
+            ws.onerror = function(error) {
+                console.error('WebSocket error:', error);
+                addSystemNotification('Connection error occurred', 'error');
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function addNotification(data) {
+            const container = document.getElementById('notifications');
+            
+            // Clear "no notifications" message
+            if (notificationCount === 0) {
+                container.innerHTML = '';
+            }
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${data.type || 'default'}`;
+            
+            notification.innerHTML = `
+                <div class="notification-title">${data.title || 'Notification'}</div>
+                <div class="notification-message">${data.message || 'No message'}</div>
+                <div class="notification-time">${new Date().toLocaleTimeString()}</div>
+            `;
+
+            container.insertBefore(notification, container.firstChild);
+            notificationCount++;
+            
+            // Update stats
+            document.getElementById('totalNotifications').textContent = notificationCount;
+            
+            // Auto-scroll to top
+            container.scrollTop = 0;
+        }
+
+        function addSystemNotification(message, type) {
+            addNotification({
+                type: type,
+                title: 'System',
+                message: message
+            });
+        }
+
+        function clearNotifications() {
+            document.getElementById('notifications').innerHTML = `
+                <div style="text-align: center; opacity: 0.6;">
+                    No notifications yet. Connect to start receiving live updates!
+                </div>
+            `;
+            notificationCount = 0;
+            document.getElementById('totalNotifications').textContent = '0';
+        }
+
+        // Auto-connect on page load
+        window.onload = function() {
+            setTimeout(connect, 1000);
+        };
+
+        // Cleanup on page unload
+        window.onbeforeunload = function() {
+            if (ws) {
+                ws.close();
+            }
+        };
+    </script>
+</body>
+</html>
